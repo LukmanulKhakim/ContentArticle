@@ -2,6 +2,7 @@ package database
 
 import (
 	"content/config"
+	rContent "content/feature/article/repository"
 	rUser "content/feature/user/repository"
 	"fmt"
 
@@ -31,4 +32,5 @@ func InitDB(c *config.AppConfig) *gorm.DB {
 
 func migrateDB(db *gorm.DB) {
 	db.AutoMigrate(&rUser.User{})
+	db.AutoMigrate(&rContent.Content{})
 }

@@ -2,6 +2,9 @@ package main
 
 import (
 	"content/config"
+	dContent "content/feature/article/delivery"
+	rContent "content/feature/article/repository"
+	sContent "content/feature/article/services"
 	dUser "content/feature/user/delivery"
 	rUser "content/feature/user/repository"
 	sUser "content/feature/user/services"
@@ -19,6 +22,10 @@ func main() {
 	mdlUser := rUser.New(db)
 	serUser := sUser.New(mdlUser)
 	dUser.New(e, serUser)
+
+	mdlContent := rContent.New(db)
+	serContent := sContent.New(mdlContent)
+	dContent.New(e, serContent)
 
 	e.Pre(middleware.RemoveTrailingSlash())
 	e.Use(middleware.CORS())
