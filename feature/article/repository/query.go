@@ -41,7 +41,7 @@ func (rq *repoQuery) Edit(point domain.ContentCore, contentID uint) (domain.Cont
 // GetAll implements domain.Repository
 func (rq *repoQuery) GetAll() ([]domain.ContentCore, error) {
 	var resQry []Content
-	if err := rq.db.Table("contents").Find(&resQry).Error; err != nil {
+	if err := rq.db.Table("contents").Model(Content{}).Find(&resQry).Joins("join users on users.id = contents.user_id").Scan(&resQry).Error; err != nil {
 		log.Error("Error on All user", err.Error())
 		return nil, err
 	}
