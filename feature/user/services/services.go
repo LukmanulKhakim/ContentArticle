@@ -99,3 +99,15 @@ func (us *userService) AllUser(email string) ([]domain.UserCore, error) {
 
 	return res, nil
 }
+
+func (us *userService) MyPoint(userID uint) (domain.UserCore, error) {
+	res, err := us.qry.GetMyPoint(userID)
+	if err != nil {
+		if strings.Contains(err.Error(), "table") {
+			return domain.UserCore{}, errors.New("database error")
+		} else if strings.Contains(err.Error(), "found") {
+			return domain.UserCore{}, errors.New("no data")
+		}
+	}
+	return res, nil
+}

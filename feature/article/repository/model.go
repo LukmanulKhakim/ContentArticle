@@ -34,6 +34,13 @@ func FromDomain(da domain.ContentCore) Content {
 		Fullname:  da.Fullname,
 	}
 }
+func FromDomainU(du domain.User) User {
+	return User{
+		Model:    gorm.Model{ID: du.ID},
+		Fullname: du.Fullname,
+		Point:    du.Point,
+	}
+}
 
 func ToDomain(a Content) domain.ContentCore {
 	return domain.ContentCore{
@@ -42,6 +49,14 @@ func ToDomain(a Content) domain.ContentCore {
 		Point_Art: a.Point_Art,
 		User_ID:   a.User_ID,
 		Fullname:  a.Fullname,
+	}
+}
+
+func ToDomainU(u User) domain.User {
+	return domain.User{
+		ID:       u.ID,
+		Fullname: u.Fullname,
+		Point:    u.Point,
 	}
 }
 

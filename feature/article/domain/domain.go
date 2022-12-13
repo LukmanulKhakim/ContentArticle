@@ -8,16 +8,24 @@ type ContentCore struct {
 	Fullname  string
 }
 
+type User struct {
+	ID       uint
+	Fullname string
+	Point    int
+}
+
 type Repository interface {
 	Add(newItem ContentCore) (ContentCore, error)
 	GetAll() ([]ContentCore, error)
-	GetMy(userID uint, contentID uint) ([]ContentCore, error)
-	Edit(point ContentCore, contentID uint) (ContentCore, error)
+	GetMy(userID uint, key uint) ([]ContentCore, error)
+	GetMyAll(userID uint) ([]ContentCore, error)
+	Edit(point ContentCore, contentID uint, user uint) (ContentCore, User, error)
 }
 
 type Service interface {
 	Post(newItem ContentCore) (ContentCore, error)
 	GetAllContent() ([]ContentCore, error)
-	GetMyContent(userID uint, contentID uint) ([]ContentCore, error)
-	EditPoint(point ContentCore, contentID uint) (ContentCore, error)
+	GetMyContent(userID uint, key uint) ([]ContentCore, error)
+	GetMyAllContent(userID uint) ([]ContentCore, error)
+	EditPoint(point ContentCore, contentID uint, user uint) (ContentCore, User, error)
 }

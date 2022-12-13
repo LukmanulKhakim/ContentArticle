@@ -20,6 +20,10 @@ type UserResponse struct {
 	Point    int    `json:"point"`
 }
 
+type Point struct {
+	Point int `json:"point"`
+}
+
 func ToResponse(core interface{}, code string) interface{} {
 	var res interface{}
 	switch code {
@@ -32,6 +36,9 @@ func ToResponse(core interface{}, code string) interface{} {
 	case "user":
 		cnv := core.(domain.UserCore)
 		res = UserResponse{ID: cnv.ID, Fullname: cnv.Fullname, Email: cnv.Email, Point: cnv.Point}
+	case "point":
+		cnv := core.(domain.UserCore)
+		res = Point{Point: cnv.Point}
 	case "all":
 		var arr []UserResponse
 		cnv := core.([]domain.UserCore)

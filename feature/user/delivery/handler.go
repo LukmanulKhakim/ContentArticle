@@ -23,6 +23,7 @@ func New(e *echo.Echo, srv domain.Service) {
 	e.GET("/admin/users", handler.GetAllUser(), middleware.JWT([]byte(ck.JwtKey)))
 	e.POST("/register", handler.Register())
 	e.POST("/login", handler.Login())
+	e.GET("/mypoint", handler.MyPoint(), middleware.JWT([]byte(ck.JwtKey)))
 }
 
 func (uh *userHandler) Register() echo.HandlerFunc {
@@ -121,6 +122,23 @@ func (uh *userHandler) GetAllUser() echo.HandlerFunc {
 				return c.JSON(http.StatusOK, SuccessResponse("success get user", ToResponse(res, "all")))
 			}
 			return nil
+		}
+	}
+}
+
+func (uh *userHandler) MyPoint() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		userID, role := common.ExtractToken(c)
+		if role != 0 {
+			return c.JSON(http.StatusUnauthorized, FailResponse("this account not user"))
+		} else if userID == 0 {
+			return c.JSON(http.StatusUnauthorized, FailResponse("cannot validate token"))
+		} else {
+			res, err := uh.srv.MyPoint(uint(userID))
+			if err != nil {
+				return c.JSON(http.StatusInternalServerError, FailResponse(err.Error()))
+			}
+			return c.JSON(http.StatusOK, SuccessResponse("success get my point", ToResponse(res, "point")))
 		}
 	}
 }

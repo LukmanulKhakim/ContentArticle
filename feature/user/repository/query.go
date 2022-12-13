@@ -56,3 +56,13 @@ func (rq *repoQuery) GetAllUser(email string) ([]domain.UserCore, error) {
 	}
 	return ToDomainArray(resQry), nil
 }
+
+// GetMyPoint implements domain.Repository
+func (rq *repoQuery) GetMyPoint(userID uint) (domain.UserCore, error) {
+	var resQry User
+	if err := rq.db.Table("contents").Where("user_id = ? ", userID).Select("SUM(point_art)").Scan(&resQry).Error; err != nil {
+		log.Error("Error on All user", err.Error())
+		return domain.UserCore{}, err
+	}
+	return ToDomain(resQry), nil
+}

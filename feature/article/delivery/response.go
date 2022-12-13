@@ -37,10 +37,7 @@ type GetResponse struct {
 }
 
 type UpdateResponse struct {
-	ID        uint   `json:"id_product"`
-	Point_Art int    `json:"point_art"`
-	User_ID   uint   `json:"user_id"`
-	Fullname  string `json:"fullname"`
+	Point_Art int `json:"point_art"`
 }
 
 func ToResponse(basic interface{}, code string) interface{} {
@@ -49,9 +46,6 @@ func ToResponse(basic interface{}, code string) interface{} {
 	case "add":
 		cnv := basic.(domain.ContentCore)
 		res = AddResponse{ID: cnv.ID, Article: cnv.Article, Point_Art: cnv.Point_Art, User_ID: cnv.User_ID}
-	case "point":
-		cnv := basic.(domain.ContentCore)
-		res = UpdateResponse{ID: cnv.ID, Point_Art: cnv.Point_Art, User_ID: cnv.User_ID, Fullname: cnv.Fullname}
 	case "all":
 		var arr []GetResponse
 		cnv := basic.([]domain.ContentCore)
@@ -59,6 +53,9 @@ func ToResponse(basic interface{}, code string) interface{} {
 			arr = append(arr, GetResponse{ID: val.ID, Article: val.Article, Point_Art: val.Point_Art, User_ID: val.User_ID, Fullname: val.Fullname})
 		}
 		res = arr
+	case "edit":
+		cnv := basic.(domain.ContentCore)
+		res = UpdateResponse{Point_Art: cnv.Point_Art}
 	}
 	return res
 }

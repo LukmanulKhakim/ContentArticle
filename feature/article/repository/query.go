@@ -28,20 +28,26 @@ func (rq *repoQuery) Add(newItem domain.ContentCore) (domain.ContentCore, error)
 }
 
 // Edit implements domain.Repository
-func (rq *repoQuery) Edit(point domain.ContentCore, contentID uint) (domain.ContentCore, error) {
+func (rq *repoQuery) Edit(point domain.ContentCore, contentID uint, user uint) (domain.ContentCore, domain.User, error) {
 	var cnv Content = FromDomain(point)
+	var res User
 	if err := rq.db.Table("contents").Where("id = ?", contentID).Updates(&cnv).Error; err != nil {
 		log.Error("error on updating user", err.Error())
-		return domain.ContentCore{}, err
+		return domain.ContentCore{}, domain.User{}, err
 	}
 
-	return ToDomain(cnv), nil
+	if err := rq.db.Table("contents").Where("user_id = ?", user).Select("sum(point_art)").Updates(&res).Error; err != nil {
+		log.Error("error on updating user", err.Error())
+		return domain.ContentCore{}, domain.User{}, err
+	}
+
+	return ToDomain(cnv), ToDomainU(res), nil
 }
 
 // GetAll implements domain.Repository
 func (rq *repoQuery) GetAll() ([]domain.ContentCore, error) {
 	var resQry []Content
-	if err := rq.db.Table("contents").Model(Content{}).Find(&resQry).Joins("join users on users.id = contents.user_id").Scan(&resQry).Error; err != nil {
+	if err := rq.db.Table("contents").Select("contents.id", "contents.article", "contents.point_art", "contents.user_id", "users.fullname").Joins("join users on users.id = contents.user_id").Scan(&resQry).Find(&resQry).Error; err != nil {
 		log.Error("Error on All user", err.Error())
 		return nil, err
 	}
@@ -49,9 +55,18 @@ func (rq *repoQuery) GetAll() ([]domain.ContentCore, error) {
 }
 
 // GetMy implements domain.Repository
-func (rq *repoQuery) GetMy(userID uint, contentID uint) ([]domain.ContentCore, error) {
+func (rq *repoQuery) GetMy(userID uint, key uint) ([]domain.ContentCore, error) {
 	var resQry []Content
-	if err := rq.db.Table("contents").Select("contents.id", "contents.article", "contents.point_art", "contents.user_id", "users.fullname").Joins("join users on users.id = contents.user_id").Scan(&resQry).Where("user_id = ? OR id = ?", userID, contentID).Find(&resQry).Error; err != nil {
+	if err := rq.db.Table("contents").Select("contents.id", "contents.article", "contents.point_art", "contents.user_id", "users.fullname").Joins("join users on users.id = contents.user_id").Scan(&resQry).Where("user_id = ? AND contents.id = ?", userID, key).Find(&resQry).Error; err != nil {
+		log.Error("Error on All user", err.Error())
+		return nil, err
+	}
+	return ToDomainArray(resQry), nil
+}
+
+func (rq *repoQuery) GetMyAll(userID uint) ([]domain.ContentCore, error) {
+	var resQry []Content
+	if err := rq.db.Table("contents").Select("contents.id", "contents.article", "contents.point_art", "contents.user_id", "users.fullname").Joins("join users on users.id = contents.user_id").Scan(&resQry).Where("user_id = ? ", userID).Find(&resQry).Error; err != nil {
 		log.Error("Error on All user", err.Error())
 		return nil, err
 	}
