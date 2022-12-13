@@ -31,16 +31,21 @@ func (rq *repoQuery) Add(newItem domain.ContentCore) (domain.ContentCore, error)
 func (rq *repoQuery) Edit(point domain.ContentCore, contentID uint, user uint) (domain.ContentCore, domain.User, error) {
 	var cnv Content = FromDomain(point)
 	var res User
+	var hasilSum int
 	if err := rq.db.Table("contents").Where("id = ?", contentID).Updates(&cnv).Error; err != nil {
 		log.Error("error on updating user", err.Error())
 		return domain.ContentCore{}, domain.User{}, err
 	}
 
-	if err := rq.db.Table("contents").Where("user_id = ?", user).Select("sum(point_art)").Updates(&res).Error; err != nil {
+	row := rq.db.Table("contents").Where("user_id", user).Select("sum(point_art)").Row()
+	row.Scan(&hasilSum)
+
+	res.Point = hasilSum
+	if err := rq.db.Table("users").Where("id = ?", user).Updates(&res).Error; err != nil {
 		log.Error("error on updating user", err.Error())
 		return domain.ContentCore{}, domain.User{}, err
 	}
-
+	log.Print(res)
 	return ToDomain(cnv), ToDomainU(res), nil
 }
 
